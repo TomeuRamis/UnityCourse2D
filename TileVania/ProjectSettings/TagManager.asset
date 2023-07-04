@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Mushroom
+  - Enemy
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -12,9 +15,9 @@ TagManager:
   - Water
   - UI
   - Ladder
-  - 
-  - 
-  - 
+  - Background
+  - Player
+  - Enemies
   - 
   - 
   - 
@@ -52,6 +55,9 @@ TagManager:
     locked: 0
   - name: Platforms
     uniqueID: 472998683
+    locked: 0
+  - name: Enemies
+    uniqueID: 3280131683
     locked: 0
   - name: Player
     uniqueID: 1977858329

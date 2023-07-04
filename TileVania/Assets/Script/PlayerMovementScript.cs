@@ -10,14 +10,13 @@ public class PlayerMovementScript : MonoBehaviour
     Collider2D myCollider;
     Rigidbody2D myRigidBody;
     Animator myAnimator;
-
+    Collider2D feetCollider;
     private float gravityScale;
     [Header("Player atributes")]
     private bool isRunning = false;
     private bool isJumping = false;
     private bool isClimbing = false;
     private bool isOnLadder = false;
-    private bool isJumpingFromLadder = false;
     [SerializeField] float playerSpeed = 1.0f;
     [SerializeField] float jumpSpeed = 10.0f;
     [SerializeField] float climbingSpeed = 5.0f;
@@ -26,7 +25,7 @@ public class PlayerMovementScript : MonoBehaviour
         myRigidBody = this.GetComponent<Rigidbody2D>();
         myCollider = this.GetComponent<Collider2D>();
         myAnimator = this.GetComponent<Animator>();
-
+        feetCollider = transform.GetChild(0).gameObject.GetComponent<Collider2D>();
         gravityScale = myRigidBody.gravityScale;
     }
 
@@ -51,14 +50,6 @@ public class PlayerMovementScript : MonoBehaviour
         {
             myRigidBody.velocity += new Vector2(0f, jumpSpeed);
         }
-
-        if(value.isPressed && isJumping && isOnLadder){
-            isJumpingFromLadder = true;
-        }else{
-            isJumpingFromLadder = false;
-        }
-
-        Debug.Log("is jumping OR on ladder"+ !isJumping + isOnLadder);
     }
 
     void OnClimb(InputValue value)
@@ -87,7 +78,7 @@ public class PlayerMovementScript : MonoBehaviour
     void Jumping()
     {
         //Update isJumping
-        if (myCollider.IsTouchingLayers(LayerMask.GetMask("Ground")))
+        if (feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground")))
         {
             isJumping = false;
         }
@@ -103,17 +94,12 @@ public class PlayerMovementScript : MonoBehaviour
     void OnLadder()
     {
         //Update isOnLadder
-        isOnLadder = myCollider.IsTouchingLayers(LayerMask.GetMask("Ladder"));
+        isOnLadder = feetCollider.IsTouchingLayers(LayerMask.GetMask("Ladder"));
 
         //Stop gravity from making the player go downwards if on ladder
-        if(isJumping && isOnLadder && !isClimbing){
-            
-        }else if(isJumpingFromLadder){
-            myRigidBody.gravityScale = gravityScale;
-        }
-        else if (isOnLadder)
+        if (isOnLadder)
         {
-            myRigidBody.velocity = new Vector2(myRigidBody.velocity.x, moveInput.y * climbingSpeed);
+            myRigidBody.velocity = new Vector2(myRigidBody.velocity.x, 0);
             myRigidBody.gravityScale = 0;
         }
         else
@@ -130,7 +116,7 @@ public class PlayerMovementScript : MonoBehaviour
         isClimbing = Mathf.Abs(moveInput.y) > Mathf.Epsilon;
 
         //Player movement
-        if (isClimbing)
+        if (isClimbing && isOnLadder)
         {
             Vector2 playerVelocity = new Vector2(myRigidBody.velocity.x, moveInput.y * climbingSpeed);
             myRigidBody.velocity = playerVelocity;
