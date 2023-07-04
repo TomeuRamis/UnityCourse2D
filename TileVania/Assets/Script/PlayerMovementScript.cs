@@ -17,9 +17,14 @@ public class PlayerMovementScript : MonoBehaviour
     private bool isJumping = false;
     private bool isClimbing = false;
     private bool isOnLadder = false;
+    private bool isDead = false;
+    private bool isHit = false;
+    private float invincibility = 0f;
     [SerializeField] float playerSpeed = 1.0f;
     [SerializeField] float jumpSpeed = 10.0f;
     [SerializeField] float climbingSpeed = 5.0f;
+    [SerializeField] float playerHealth = 3.0f;
+    [SerializeField] float iFrames = 1.0f;
     void Start()
     {
         myRigidBody = this.GetComponent<Rigidbody2D>();
@@ -31,10 +36,12 @@ public class PlayerMovementScript : MonoBehaviour
 
     void Update()
     {
+        if(isDead){return;}
         OnLadder();
         Climbing();
         Jumping();
         Run();
+        isPlayerHit();
         FlipSprite();
     }
 
@@ -46,6 +53,7 @@ public class PlayerMovementScript : MonoBehaviour
 
     void OnJump(InputValue value)
     {
+        if(isDead){return;}
         if (value.isPressed && (!isJumping || isOnLadder))
         {
             myRigidBody.velocity += new Vector2(0f, jumpSpeed);
@@ -54,6 +62,7 @@ public class PlayerMovementScript : MonoBehaviour
 
     void OnClimb(InputValue value)
     {
+        if(isDead){return;}
         moveInput = value.Get<Vector2>();
         Debug.Log(moveInput);
     }
@@ -130,6 +139,35 @@ public class PlayerMovementScript : MonoBehaviour
         if (isRunning)
         {
             transform.localScale = new Vector2(Mathf.Sign(myRigidBody.velocity.x), 1.0f);
+        }
+    }
+
+    public void isPlayerHit(){
+        //Remove iFrames
+        if(invincibility <= 0){
+            myAnimator.ResetTrigger("isHit");
+            invincibility = 0;
+        } else{
+            invincibility -= Time.deltaTime;
+            Debug.Log("Invincibility: "+invincibility);
+        }
+
+        isHit = myCollider.IsTouchingLayers(LayerMask.GetMask("Enemies"));
+        if(isHit && invincibility <= 0){
+            myAnimator.SetTrigger("isHit");
+            myRigidBody.velocity = new Vector2(-myRigidBody.velocity.x, 10.0f);
+            playerHealth -= 1;
+            invincibility = iFrames;
+        }
+
+        Die();
+    }
+    public void Die(){
+        isDead = (playerHealth <= 0);
+        if(isDead){
+            myRigidBody.velocity = new Vector2(0f, 0f);
+            myRigidBody.gravityScale = 0;
+            myAnimator.SetTrigger("Death");
         }
     }
 

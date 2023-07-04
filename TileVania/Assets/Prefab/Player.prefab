@@ -278,3 +278,5 @@ MonoBehaviour:
   playerSpeed: 5
   jumpSpeed: 15
   climbingSpeed: 5
+  playerHealth: 3
+  iFrames: 1

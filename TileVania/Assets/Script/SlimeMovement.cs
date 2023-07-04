@@ -21,12 +21,13 @@ public class SlimeMovement : MonoBehaviour
         myRigidBody.velocity = new Vector2(moveSpeed, myRigidBody.velocity.y);
     }
 
-    private void OnTriggerEnter2D(Collider2D other) {
+    private void OnTriggerExit2D(Collider2D other) {
         if(other.tag == "Ground"){
             moveSpeed *= -1;
             FlipSprite();
         }
     }
+
 
     void FlipSprite(){
         this.transform.localScale = new Vector2(Mathf.Sign(moveSpeed), 1.0f);
